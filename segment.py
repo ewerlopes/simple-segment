@@ -116,6 +116,23 @@ def topdownsegment(sequence, create_segment, compute_error, max_error, seq_range
 
 
 def m_swab(sequence, create_segment, compute_error, max_error, buffer_size=80):
+    """
+        Described in Van Laerhoven, Kristof, and Bernt Schiele.
+        "An Empirical Study of Time Series Approximation Algorithms for Wearable Accelerometers." (2009).
+        
+        Return a list of line segments that approximate the sequence.
+
+        The list is computed using the bottom-up technique.
+
+        Parameters
+        ----------
+        sequence : sequence to segment
+        create_segment : a function of two arguments (sequence, sequence range) that returns a line segment that approximates the sequence data in the specified range
+        compute_error: a function of two argments (sequence, segment) that returns the error from fitting the specified line segment to the sequence data
+        max_error: the maximum allowable line segment fitting error
+
+    """
+
     segs = []
     win_left = 0
     win_right = buffer_size-1
@@ -126,10 +143,6 @@ def m_swab(sequence, create_segment, compute_error, max_error, buffer_size=80):
         swabbuf = sequence[win_left:win_right]
         # Bottom-Up segmentation of buffer
         T = bottomupsegment(swabbuf, create_segment, compute_error, max_error)
-        #cleanT = []
-
-        #for line in T:
-        #    cleanT.append((win_left+line[0], line[1], win_left + line[2], line[3]))
 
         # add left-most segment from BU:
         segs.append(T[0])

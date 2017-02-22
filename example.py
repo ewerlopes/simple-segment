@@ -66,7 +66,6 @@ max_error = 0.005
 figure()
 segments = segment.m_swab(data, fit.interpolate, fit.sumsquared_error, max_error)
 draw_plot(data, "Swab with simple interpolation")
-print segments
 draw_segments(segments)
 
 
