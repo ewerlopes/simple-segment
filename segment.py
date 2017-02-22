@@ -1,3 +1,4 @@
+import numpy as np
 
 def slidingwindowsegment(sequence, create_segment, compute_error, max_error, seq_range=None):
     """
@@ -53,18 +54,19 @@ def bottomupsegment(sequence, create_segment, compute_error, max_error):
 
     while min(mergecosts) < max_error:
         idx = mergecosts.index(min(mergecosts))
-        segments[idx] = mergesegments[idx]
-        del segments[idx+1]
+
+        new_seg = create_segment(sequence, (segments[idx][0], segments[idx + 1][2]))
+        segments[idx] = new_seg
+        del segments[idx + 1]
 
         if idx > 0:
-            mergesegments[idx-1] = create_segment(sequence,(segments[idx-1][0],segments[idx][2]))
-            mergecosts[idx-1] = compute_error(sequence,mergesegments[idx-1])
+            merge_seg = create_segment(sequence, (segments[idx - 1][0], segments[idx][2]))
+            mergecosts[idx - 1] = compute_error(sequence, merge_seg)
 
-        if idx+1 < len(mergecosts):
-            mergesegments[idx+1] = create_segment(sequence,(segments[idx][0],segments[idx+1][2]))
-            mergecosts[idx+1] = compute_error(sequence,mergesegments[idx])
+        if idx + 1 < len(mergecosts):
+            merge_seg = create_segment(sequence, (segments[idx][0], segments[idx + 1][2]))
+            mergecosts[idx] = compute_error(sequence, merge_seg)
 
-        del mergesegments[idx]
         del mergecosts[idx]
 
     return segments
@@ -111,3 +113,54 @@ def topdownsegment(sequence, create_segment, compute_error, max_error, seq_range
         rightsegs = topdownsegment(sequence, create_segment, compute_error, max_error, (bestidx,seq_range[1]))
     
     return leftsegs + rightsegs
+
+
+def m_swab(sequence, create_segment, compute_error, max_error, buffer_size=80):
+    segs = []
+    win_left = 0
+    win_right = buffer_size-1
+
+    seq_range = (0, len(sequence)-1)
+
+    while True:  #while new data:
+        swabbuf = sequence[win_left:win_right]
+        # Bottom-Up segmentation of buffer
+        T = bottomupsegment(swabbuf, create_segment, compute_error, max_error)
+        #cleanT = []
+
+        #for line in T:
+        #    cleanT.append((win_left+line[0], line[1], win_left + line[2], line[3]))
+
+        # add left-most segment from BU:
+        segs.append(T[0])
+        n = len(segs)
+
+        # merge last segments if slope is equal
+        if n > 2:
+            last_slope = (segs[-1][3] - segs[-1][1]) // (segs[-1][2] - segs[-1][0])
+            b_last_slope = (segs[-2][3] - segs[-2][1]) // (segs[-2][2] - segs[-2][0])
+            if last_slope == b_last_slope:
+                # merge segments
+                new_segs = segs[:-2]
+                merged = create_segment(sequence, (segs[-2][0], segs[-1][2]))
+                new_segs.append(merged)
+                segs = new_segs
+                n -= 1
+
+        # shift left of buffer window:
+        win_left += segs[-1][0]
+        # shift right of buffer window:
+        if win_right < seq_range[1]:
+            i = win_right + 1
+            # get sign of the slope
+            s = np.sign(sequence[i] - sequence[i-1])
+            while np.sign(sequence[i] - sequence[i-1]) == s:
+                i += 1
+                if i >= seq_range[1]:
+                    i -= 1
+                    break
+            win_right = i
+        else:
+            # all done, flush buffer segments:
+            segs += T[1:]
+            return segs
