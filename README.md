@@ -7,8 +7,9 @@ The algorithms are Python implementations of the "classical" algorithms, as desc
 [An Online Algorithm for Segmenting Time Series][keogh], including:
 
 - the sliding window algorithm;
-- the top-down algorithm; and
-- the bottom-up algorithm.
+- the top-down algorithm;
+- the bottom-up algorithm;
+- mSWAB algorithm, defined at *"Described in Van Laerhoven, Kristof, and Bernt Schiele."An Empirical Study of Time Series Approximation Algorithms for Wearable Accelerometers." (2009)."*
 
 The code is *not* optimized for performance in any way, but I've found it useful for 
 experimenting and data exploration.

@@ -119,7 +119,7 @@ def m_swab(sequence, create_segment, compute_error, max_error, buffer_size=80):
     """
         Described in Van Laerhoven, Kristof, and Bernt Schiele.
         "An Empirical Study of Time Series Approximation Algorithms for Wearable Accelerometers." (2009).
-        
+
         Return a list of line segments that approximate the sequence.
 
         The list is computed using the bottom-up technique.
